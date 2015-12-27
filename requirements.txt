@@ -1,0 +1,7 @@
+Django==1.9
+dj-static
+whitenoise==1.0.6
+psycopg2
+dj-database-url==0.3.0
+gunicorn
+simplejson
