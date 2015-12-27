@@ -2,10 +2,10 @@ from django.shortcuts import render
 
 
 def update(request):
-    pass
+    return render(request, 'update.html', {})
 
 def insert(request):
-    pass
+    return render(request, 'insert.html', {})
 
 def ping(request):
-    pass
+    return render(request, 'ping.html', {})

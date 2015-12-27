@@ -11,8 +11,11 @@ SLEEP = settings.BOT_SLEEP
 DOMAIN = settings.MARKET_DOMAIN
 
 def home(request):
-    user = UserProfile.objects.get(user=request.user)
-    api_key = user.api_key
-    steam = user.steam_username
+    try:
+        user = UserProfile.objects.get(user=request.user)
+        api_key = user.api_key
+        steam = user.steam_username
+    except UserProfile.DoesNotExist:
+        pass
     data = {}
     return render(request, 'index.html', data)
