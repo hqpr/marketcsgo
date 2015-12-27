@@ -13,6 +13,6 @@ DOMAIN = settings.MARKET_DOMAIN
 def home(request):
     user = UserProfile.objects.get(user=request.user)
     api_key = user.api_key
-    steam = user.steam
+    steam = user.steam_username
     data = {}
     return render(request, 'index.html', data)
