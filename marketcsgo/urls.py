@@ -20,7 +20,7 @@ from django.conf.urls.static import static
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 
-from .views import home
+from .views import home, inventory
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -28,6 +28,8 @@ urlpatterns = [
     url(r'^$', login_required(home), name='home'),
     url(r'^account/', include('apps.account.urls')),
     url(r'^bot/', include('apps.bot.urls')),
+
+    url(r'^inventory/', inventory, name='inventory'),
 
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

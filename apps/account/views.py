@@ -45,6 +45,7 @@ def logout_view(request):
     logout(request)
     return redirect('home')
 
+
 class SettingsView(FormView):
     template_name = 'settings.html'
     form_class = UserProfileForm

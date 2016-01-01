@@ -1,5 +1,25 @@
 {% extends 'base.html' %}
 
-{% block title %}Update{% endblock %}
+{% block title %}Обновить трейд{% endblock %}
 
-{% block content %}{% endblock %}
+{% block content %}
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+
+                <div class="alert alert-warning alert-dismissable" style="display:none;">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    Processing...
+                </div>
+
+                <pre id="result" style="display: none"></pre>
+
+                <form action="" method="post" id="update_form" style="margin-top: 100px;">
+                    {% csrf_token %}
+                    <button type="submit" onclick="return false" class="btn btn-primary btn-lg btn-block" id="update_start">
+                         Обновить все цены</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -67,6 +67,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'apps.account.context_processors.check_profile',
+                'apps.account.context_processors.debug_mode',
             ],
         },
     },
@@ -135,11 +137,12 @@ STATIC_ROOT = 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
 MARKET_DOMAIN = 'https://market.csgo.com'
-BOT_SLEEP = 0.4
-# agents = open('%s/static/user-agents.txt').read().splitlines() % BASE_DIR
+BOT_SLEEP = 0
 
 agents = open(os.path.join(BASE_DIR, 'static/user-agents.txt')).read().splitlines()
 AGENT = random.choice(agents)
+
+LOCAL_DB = os.path.join(BASE_DIR, 'static/dumb.csv')
 
 try:
     from local_settings import *

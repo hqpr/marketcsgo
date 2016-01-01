@@ -28,6 +28,11 @@ class UserProfileForm(forms.ModelForm):
     max_price.widget.attrs['class'] = 'form-control'
     max_price.widget.attrs['placeholder'] = '200'
 
+    debug_mode = forms.BooleanField(
+        label='myLabel',
+        required=True,
+        initial=True)
+
     class Meta:
         model = UserProfile
-        fields = ('api_key', 'abs_min_price', 'steam_username', 'max_price')
+        fields = ('api_key', 'abs_min_price', 'steam_username', 'max_price', 'debug_mode')

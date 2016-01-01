@@ -11,6 +11,7 @@ class UserProfile(models.Model):
     steam_username = models.CharField(max_length=255)
     abs_min_price = models.PositiveIntegerField()
     max_price = models.PositiveIntegerField()
+    debug_mode = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
         """ On save, update timestamps """

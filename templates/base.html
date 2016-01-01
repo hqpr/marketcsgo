@@ -24,9 +24,6 @@
     <!-- Custom CSS -->
     <link href="{% static 'css/sb-admin-2.css' %}" rel="stylesheet">
 
-    <!-- Morris Charts CSS -->
-    <link href="{% static 'bower_components/morrisjs/morris.css' %}" rel="stylesheet">
-
     <!-- Custom Fonts -->
     <link href="{% static 'bower_components/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet">
 
@@ -41,31 +38,58 @@
 
 <body>
 
-    <div id="wrapper">
+<div id="wrapper">
 
-        {% include 'inc/side_menu.html' %}
+    {% include 'inc/side_menu.html' %}
+    <div style="margin: 10px 0 0 250px; position: inherit; padding: 0 30px; border-left: 1px solid #e7e7e7;">
+        <div class="row">
+            <div class="col-lg-12">
+                {% if not valid  %}
 
-        {% block content %}{% endblock %}
+                    <div class="alert alert-danger alert-dismissable">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        Не верный профиль! Не заполнены данные для бота.
+                    </div>
 
+                {% endif %}
+
+                {% if debug %}
+                    <div class="alert alert-info alert-dismissable">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        Включен режим отладки. Изменения не повлияют на товар.
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning alert-dismissable">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        Внимание! Режим отладки отключен.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
     </div>
-    <!-- /#wrapper -->
 
-    <!-- jQuery -->
-    <script src="{% static 'js/jquery.js' %}"></script>
+    {% block content %}{% endblock %}
 
-    <!-- Bootstrap Core JavaScript -->
-    <script src="{% static 'lib/bootstrap/js/bootstrap.min.js' %}"></script>
+</div>
+<!-- /#wrapper -->
 
-    <!-- Metis Menu Plugin JavaScript -->
-    <script src="{% static 'bower_components/metisMenu/dist/metisMenu.min.js' %}"></script>
+<!-- jQuery -->
+<script src="{% static 'js/jquery.js' %}"></script>
 
-    <!-- Morris Charts JavaScript -->
-    <script src="{% static 'bower_components/raphael/raphael-min.js' %}"></script>
+<!-- Bootstrap Core JavaScript -->
+<script src="{% static 'lib/bootstrap/js/bootstrap.min.js' %}"></script>
 
-    <!-- Custom Theme JavaScript -->
-    <script src="{% static 'js/sb-admin-2.js' %}"></script>
-    <script src="{% static 'js/jquery.form.min.js' %}"></script>
-    <script src="{% static 'js/profile.js' %}"></script>
+<!-- Metis Menu Plugin JavaScript -->
+<script src="{% static 'bower_components/metisMenu/dist/metisMenu.min.js' %}"></script>
+
+<!-- Morris Charts JavaScript -->
+<script src="{% static 'bower_components/raphael/raphael-min.js' %}"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="{% static 'js/sb-admin-2.js' %}"></script>
+<script src="{% static 'js/jquery.form.min.js' %}"></script>
+<script src="{% static 'js/profile.js' %}"></script>
+<script src="{% static 'js/bot.js' %}"></script>
 
 </body>
 
