@@ -240,89 +240,6 @@ def process_item(item, api_key, debug_mode):
     return data
 
 
-def update_trade(d, debug_mode, api_key):
-    for k, v in d.items():
-        item = k
-        our_price = int('{:.0f}'.format(float(v[0]['price'])*100))
-        rec_price = int('{:.0f}'.format(float(v[2]['market_price'])*100))
-        min_price = int('{:.0f}'.format(float(v[1]['min_price'])*100))
-        name = v[3]['name']
-        abs_min_price = int('{:.0f}'.format(round(rec_price*0.7)))
-
-        updated_price = our_price + 1
-        condition = 0
-
-        if our_price < min_price < rec_price:
-            updated_price = min_price - 1
-            condition = 1
-
-        if our_price > min_price < rec_price:
-            updated_price = min_price - 1
-            condition = 2
-
-        if rec_price and our_price >= min_price > rec_price:
-            updated_price = rec_price
-            condition = 3
-
-        if rec_price and our_price < min_price > rec_price:
-            updated_price = rec_price
-            condition = 4
-
-        if not rec_price and our_price < min_price:
-            updated_price = min_price - 1
-            condition = 5
-
-        if not rec_price and our_price > min_price:
-            updated_price = min_price - 1
-            condition = 6
-
-        if not min_price and rec_price and our_price >= rec_price:
-            updated_price = rec_price
-            condition = 7
-
-        if not min_price and not rec_price and our_price > rec_price:
-            updated_price = our_price
-            condition = 8
-
-        if not rec_price and min_price and our_price > min_price:
-            updated_price = min_price - 1
-            condition = 9
-
-        if not rec_price and min_price and our_price < min_price:
-            updated_price = min_price - 1
-            condition = 10
-
-        if min_price == rec_price and rec_price != 0 and (our_price > min_price or our_price < min_price):
-            updated_price = min_price - 1
-            condition = 11
-
-        if our_price == min_price < rec_price:
-            updated_price = min_price
-            condition = 12
-
-        if not rec_price and our_price == min_price:
-            updated_price = min_price
-            condition = 13
-
-        if our_price == rec_price == min_price:
-            updated_price = min_price
-            condition = 14
-
-        if updated_price > abs_min_price:
-            if condition not in [8, 12, 13, 14]:
-                if not debug_mode:
-                    set_price(item, updated_price, api_key)
-                print '%s - was=%s, rec=%s, min=%s, set=%s (%s)' % (name, our_price, rec_price, min_price,
-                                                                    updated_price, condition)
-                data = {'success': '%s - was=%s, rec=%s, min=%s, set=%s (%s)' % (name, our_price, rec_price, min_price,
-                                                                                 updated_price, condition)}
-                return HttpResponse(simplejson.dumps(data), content_type='application/json')
-
-        # else:
-        #     print '[!]%s - was=%s, rec=%s, min=%s, set=%s (%s)' % (name, our_price, rec_price, min_price,
-        #                                                            updated_price, abs_min_price)
-
-
 def update(request):
     if request.method == 'POST':
         try:
@@ -330,26 +247,94 @@ def update(request):
             api_key = '?key=%s' % user.api_key
             debug_mode = user.debug_mode
 
-            current_trade = {}
             url = '%s/api/Trades/%s' % (settings.MARKET_DOMAIN, api_key)
             data = get_request(url)
             for d in data:
-                item_id = '%s_%s' % (d['i_classid'], d['i_instanceid'])
-                current_trade.update({item_id: [{'price': d['ui_price']},
-                                                {'min_price': d['min_price']},
-                                                {'market_price': d['i_market_price']},
-                                                {'name': d['i_name']},
-                                                {'id': d['ui_id']}]})
-            trade = current_trade
-            if len(trade) > 0:
-                update_trade(trade, debug_mode, api_key)
-            else:
-                data = {'success': False, 'msg': 'No items it trade'}
-                return HttpResponse(simplejson.dumps(data), content_type='application/json')
+
+                item = '%s' % d['ui_id']
+
+                our_price = int('{:.0f}'.format(float(d['ui_price'])*100))
+                rec_price = int('{:.0f}'.format(float(d['i_market_price'])*100))
+                min_price = int('{:.0f}'.format(float(d['min_price'])*100))
+                name = d['i_name']
+                abs_min_price = int('{:.0f}'.format(round(rec_price*0.7)))
+
+                updated_price = our_price + 1
+                condition = 0
+
+                if our_price < min_price < rec_price:
+                    updated_price = min_price - 1
+                    condition = 1
+
+                if our_price > min_price < rec_price:
+                    updated_price = min_price - 1
+                    condition = 2
+
+                if rec_price and our_price >= min_price > rec_price:
+                    updated_price = rec_price
+                    condition = 3
+
+                if rec_price and our_price < min_price > rec_price:
+                    updated_price = rec_price
+                    condition = 4
+
+                if not rec_price and our_price < min_price:
+                    updated_price = min_price - 1
+                    condition = 5
+
+                if not rec_price and our_price > min_price:
+                    updated_price = min_price - 1
+                    condition = 6
+
+                if not min_price and rec_price and our_price >= rec_price:
+                    updated_price = rec_price
+                    condition = 7
+
+                if not min_price and not rec_price and our_price > rec_price:
+                    updated_price = our_price
+                    condition = 8
+
+                if not rec_price and min_price and our_price > min_price:
+                    updated_price = min_price - 1
+                    condition = 9
+
+                if not rec_price and min_price and our_price < min_price:
+                    updated_price = min_price - 1
+                    condition = 10
+
+                if min_price == rec_price and rec_price != 0 and (our_price > min_price or our_price < min_price):
+                    updated_price = min_price - 1
+                    condition = 11
+
+                if our_price == min_price < rec_price:
+                    updated_price = min_price
+                    condition = 12
+
+                if not rec_price and our_price == min_price:
+                    updated_price = min_price
+                    condition = 13
+
+                if our_price == rec_price == min_price:
+                    updated_price = min_price
+                    condition = 14
+
+                if updated_price > abs_min_price:
+                    if condition not in [8, 12, 13, 14]:
+                        if not debug_mode:
+                            url = '%s/api/SetPrice/%s/%s/%s' % (settings.MARKET_DOMAIN, item, updated_price, api_key)
+                            data = get_request(url)
+                            # if data['success'] and 'position' in data:
+                            #     print 'Success: %s, Position: %s' % (data['success'], data['position'])
+                            # else:
+                            #     print data
+                        result = '%s - was=%s, rec=%s, min=%s, set=%s (%s)' % (name, our_price, rec_price, min_price,
+                                                                                   updated_price, condition)
+                        print result
+                        resp = {'success': True, 'msg': result}
+                        # return HttpResponse(simplejson.dumps(resp), content_type='application/json')
+
         except UserProfile.DoesNotExist:
             pass
-    else:
-        pass
     return render(request, 'update.html', {})
 
 
@@ -373,6 +358,9 @@ def insert(request):
                                 data = process_item(item, api_key, debug_mode)
                             else:
                                 data = process_item(item, api_key, debug_mode)
+                            resp = {'success': True, 'msg': data}
+                    # return HttpResponse(simplejson.dumps(str(resp)), content_type='application/json')
+                    #         return resp
             else:
                 steamcommunity = 'http://steamcommunity.com/profiles/%s/inventory/json/730/2/' % user.steam_username
                 response = urllib2.urlopen(steamcommunity)
@@ -380,12 +368,10 @@ def insert(request):
                 inv_len = len(data['rgInventory'])
                 data = {'inv_len': inv_len}
 
-            return render(request, 'insert.html', data)
+                return render(request, 'insert.html', data)
 
         except UserProfile.DoesNotExist:
             pass
-        return HttpResponse(simplejson.dumps(data), content_type='application/json')
-
 
 
 def ping(request):

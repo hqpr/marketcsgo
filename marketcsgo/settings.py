@@ -137,7 +137,7 @@ STATIC_ROOT = 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
 MARKET_DOMAIN = 'https://market.csgo.com'
-BOT_SLEEP = 0
+BOT_SLEEP = 1
 
 agents = open(os.path.join(BASE_DIR, 'static/user-agents.txt')).read().splitlines()
 AGENT = random.choice(agents)
