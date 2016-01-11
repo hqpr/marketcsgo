@@ -57,11 +57,13 @@
                     <div class="alert alert-info alert-dismissable">
                         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                         Включен режим отладки. Изменения не повлияют на товар.
+                    <a href="{% url 'switch' %}" class="btn btn-success">Выключить</a>
                     </div>
                 {% else %}
                     <div class="alert alert-warning alert-dismissable">
                         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                         Внимание! Режим отладки отключен.
+                    <a href="{% url 'switch' %}" class="btn btn-success">Включить</a>
                     </div>
                 {% endif %}
             </div>

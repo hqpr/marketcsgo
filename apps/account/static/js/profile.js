@@ -4,6 +4,7 @@ $(document).ready(function(){
              success: function(data){
                  if (data.success) {
                      console.log('success');
+                     window.location.replace("/");
                  } else {
                      if (data.msg){
                          var errors = $('.alert-dismissable');

@@ -184,7 +184,8 @@ def process_item(item, api_key, debug_mode):
         url = '%s/api/SetPrice/new_%s/%s/%s' % (settings.MARKET_DOMAIN, item, price, api_key)
         data = get_request(url)
         print
-        print 'Success: %s, Position: %s' % (data['success'], data['position'])
+        if 'position' in data:
+            print 'Success: %s, Position: %s' % (data['success'], data['position'])
 
     try:
         current_trade = {}
@@ -242,6 +243,8 @@ def process_item(item, api_key, debug_mode):
 
 def update(request):
     if request.method == 'POST':
+        resp = {}
+        msg = []
         try:
             user = UserProfile.objects.get(user=request.user)
             api_key = '?key=%s' % user.api_key
@@ -323,15 +326,23 @@ def update(request):
                         if not debug_mode:
                             url = '%s/api/SetPrice/%s/%s/%s' % (settings.MARKET_DOMAIN, item, updated_price, api_key)
                             data = get_request(url)
-                            # if data['success'] and 'position' in data:
-                            #     print 'Success: %s, Position: %s' % (data['success'], data['position'])
-                            # else:
-                            #     print data
-                        result = '%s - was=%s, rec=%s, min=%s, set=%s (%s)' % (name, our_price, rec_price, min_price,
-                                                                                   updated_price, condition)
+                            if data['success'] and 'position' in data:
+                                print 'Success: %s, Position: %s' % (data['success'], data['position'])
+                                result = '%s - was=%s, rec=%s, min=%s, set=%s (%s)\n' % \
+                                         (name, our_price, rec_price, min_price, updated_price, condition)
+                                print result
+                                msg.append(result)
+                                resp = {'success': True, 'msg': msg}
+                            else:
+                                print data
+                    else:
+                        result = '%s - was=%s, rec=%s, min=%s, set=%s (%s)\n' % \
+                                 (name, our_price, rec_price, min_price, updated_price, condition)
                         print result
-                        resp = {'success': True, 'msg': result}
-                        # return HttpResponse(simplejson.dumps(resp), content_type='application/json')
+                        msg.append(result)
+                        resp = {'success': True, 'msg': msg}
+
+            return HttpResponse(simplejson.dumps(resp), content_type='application/json')
 
         except UserProfile.DoesNotExist:
             pass
@@ -359,8 +370,7 @@ def insert(request):
                             else:
                                 data = process_item(item, api_key, debug_mode)
                             resp = {'success': True, 'msg': data}
-                    # return HttpResponse(simplejson.dumps(str(resp)), content_type='application/json')
-                    #         return resp
+                return HttpResponse(simplejson.dumps(str(resp)), content_type='application/json')
             else:
                 steamcommunity = 'http://steamcommunity.com/profiles/%s/inventory/json/730/2/' % user.steam_username
                 response = urllib2.urlopen(steamcommunity)

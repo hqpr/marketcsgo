@@ -82,3 +82,13 @@ class SettingsView(FormView):
 
     def render_to_response(self, context, **response_kwargs):
         return super(SettingsView, self).render_to_response(context, **response_kwargs)
+
+
+def switch(request):
+    u = UserProfile.objects.get(user=request.user)
+    if u.debug_mode:
+        u.debug_mode = False
+    else:
+        u.debug_mode = True
+    u.save()
+    return redirect(request.META.get('HTTP_REFERER'))

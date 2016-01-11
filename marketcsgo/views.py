@@ -22,7 +22,10 @@ def home(request):
         steamcommunity = 'http://steamcommunity.com/profiles/%s/inventory/json/730/2/' % steam
         response = urllib2.urlopen(steamcommunity)
         data = json.load(response)
-        inv_len = len(data['rgInventory'])
+        try:
+            inv_len = len(data['rgInventory'])
+        except KeyError:
+            inv_len = 0
 
         len_current_trade = 0
         current_trade = {}
