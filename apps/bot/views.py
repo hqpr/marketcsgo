@@ -8,7 +8,6 @@ import urllib2
 import json
 import csv
 import simplejson
-import time
 
 from apps.account.models import UserProfile
 from marketcsgo.views import get_request
@@ -178,7 +177,6 @@ def set_price(item, price, api_key):
 
 
 def process_item(item, api_key, debug_mode):
-    data = {}
 
     def set_new_price(item, price):
         url = '%s/api/SetPrice/new_%s/%s/%s' % (settings.MARKET_DOMAIN, item, price, api_key)
@@ -187,7 +185,9 @@ def process_item(item, api_key, debug_mode):
         if 'position' in data:
             print 'Success: %s, Position: %s' % (data['success'], data['position'])
 
+    msg = []
     try:
+
         current_trade = {}
         url = '%s/api/Trades/%s' % (settings.MARKET_DOMAIN, api_key)
         data = get_request(url)
@@ -207,38 +207,27 @@ def process_item(item, api_key, debug_mode):
                 if item_id not in my_trade:
                     if not debug_mode:
                         set_new_price(item_id, find_in_db(market_name))
-                    data = {'success': '[*] %s = %s' % (item_name, find_in_db(market_name))}
-                    print '[*] %s = %s' % (item_name, find_in_db(market_name))
-                    return HttpResponse(simplejson.dumps(data), content_type='application/json')
-
-                else:
-                    pass
+                    result = '[*] %s = %s\n' % (item_name, find_in_db(market_name))
+                    msg.append(result)
             else:
                 if item_id not in my_trade:
                     if not debug_mode:
                         set_new_price(item_id, 5000000)
-                    data = {'success': '[*] %s = %s' % (item_name, 5000000)}
-                    print '[*] %s = %s' % (item_name, 5000000)
-                    return HttpResponse(simplejson.dumps(data), content_type='application/json')
-                else:
-                    pass
+                    result = '[*] %s = %s\n' % (item_name, 5000000)
+                    msg.append(result)
         else:
             # Все нашло, ставим на 1 коп меньше
             updated_price = int(item['min_price']) - 1
             if item_id not in my_trade:
                 if not debug_mode:
                     set_new_price(item_id, updated_price)
-                data = {'success': '[+] %s = %s' % (item_name, updated_price)}
-                print '[+] %s = %s' % (item_name, updated_price)
-                return HttpResponse(simplejson.dumps(data), content_type='application/json')
-
-            else:
-                pass
+                result = '[+] %s = %s\n' % (item_name, updated_price)
+                msg.append(result)
     except Exception as e:
         pass
         # print item
         print e
-    return data
+    return msg
 
 
 def update(request):
@@ -326,19 +315,14 @@ def update(request):
                         if not debug_mode:
                             url = '%s/api/SetPrice/%s/%s/%s' % (settings.MARKET_DOMAIN, item, updated_price, api_key)
                             data = get_request(url)
-                            if data['success'] and 'position' in data:
-                                print 'Success: %s, Position: %s' % (data['success'], data['position'])
-                                result = '%s - was=%s, rec=%s, min=%s, set=%s (%s)\n' % \
-                                         (name, our_price, rec_price, min_price, updated_price, condition)
-                                print result
-                                msg.append(result)
-                                resp = {'success': True, 'msg': msg}
-                            else:
-                                print data
+                            result = '%s - was=%s, rec=%s, min=%s, set=%s (%s)\n' % \
+                                     (name.encode('utf-8'), our_price, rec_price, min_price, updated_price, condition)
+                            print data
+                            msg.append(result)
+                            resp = {'success': True, 'msg': msg}
                     else:
                         result = '%s - was=%s, rec=%s, min=%s, set=%s (%s)\n' % \
                                  (name, our_price, rec_price, min_price, updated_price, condition)
-                        print result
                         msg.append(result)
                         resp = {'success': True, 'msg': msg}
 
@@ -350,38 +334,38 @@ def update(request):
 
 
 def insert(request):
-        try:
-            user = UserProfile.objects.get(user=request.user)
-            api_key = '?key=%s' % user.api_key
-            debug_mode = user.debug_mode
-            if request.method == 'POST':
-                update_db(db_filename())
-                steamcommunity = 'http://steamcommunity.com/profiles/%s/inventory/json/730/2/' % user.steam_username
-                response = urllib2.urlopen(steamcommunity)
-                inventory = json.load(response)
-                for i in inventory['rgInventory'].items():
-                    for k in i:
-                        if isinstance(k, dict):
-                            item_id = '%s_%s' % (k['classid'], k['instanceid'])
-                            url = '%s/api/ItemInfo/%s/ru/%s' % (settings.MARKET_DOMAIN, item_id, api_key)
-                            item = get_request(url)
-                            if 'error' not in item:
-                                data = process_item(item, api_key, debug_mode)
-                            else:
-                                data = process_item(item, api_key, debug_mode)
-                            resp = {'success': True, 'msg': data}
-                return HttpResponse(simplejson.dumps(str(resp)), content_type='application/json')
-            else:
-                steamcommunity = 'http://steamcommunity.com/profiles/%s/inventory/json/730/2/' % user.steam_username
-                response = urllib2.urlopen(steamcommunity)
-                data = json.load(response)
-                inv_len = len(data['rgInventory'])
-                data = {'inv_len': inv_len}
+    try:
+        user = UserProfile.objects.get(user=request.user)
+        api_key = '?key=%s' % user.api_key
+        debug_mode = user.debug_mode
+        if request.method == 'POST':
+            msg = []
+            update_db(db_filename())
+            steamcommunity = 'http://steamcommunity.com/profiles/%s/inventory/json/730/2/' % user.steam_username
+            response = urllib2.urlopen(steamcommunity)
+            inventory = json.load(response)
+            for i in inventory['rgInventory'].items():
+                for k in i:
+                    if isinstance(k, dict):
+                        item_id = '%s_%s' % (k['classid'], k['instanceid'])
+                        url = '%s/api/ItemInfo/%s/ru/%s' % (settings.MARKET_DOMAIN, item_id, api_key)
+                        item = get_request(url)
 
-                return render(request, 'insert.html', data)
+                        data = process_item(item, api_key, debug_mode)
+                        print data
+                        msg.append(data)
+            resp = {'success': True, 'msg': msg}
+            return HttpResponse(simplejson.dumps(resp), content_type='application/json')
+        else:
+            steamcommunity = 'http://steamcommunity.com/profiles/%s/inventory/json/730/2/' % user.steam_username
+            response = urllib2.urlopen(steamcommunity)
+            data = json.load(response)
+            inv_len = len(data['rgInventory'])
+            data = {'inv_len': inv_len}
 
-        except UserProfile.DoesNotExist:
-            pass
+            return render(request, 'insert.html', data)
+    except UserProfile.DoesNotExist:
+        pass
 
 
 def ping(request):

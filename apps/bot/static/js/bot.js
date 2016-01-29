@@ -1,14 +1,17 @@
 $(document).ready(function(){
 
+    var insert_form = $('#insert_form');
     $('#insert_start').on('click', function(){
-        $('#insert_form').hide();
+        insert_form.hide();
         $('.alert-success').show();
-        $('#insert_form').ajaxSubmit({
+        insert_form.ajaxSubmit({
             success: function(resp){
                 if (resp.success) {
-                    console.log(success);
+                    console.log('success');
                     $('.alert-success').show();
+                    $('#result').fadeIn().text(resp.msg);
                 } else {
+                    console.log('error');
                     var errors = $('body');
                     errors.html(resp.html);
                     $('.alert-danger').show();

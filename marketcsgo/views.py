@@ -14,6 +14,7 @@ SLEEP = settings.BOT_SLEEP
 DOMAIN = settings.MARKET_DOMAIN
 
 def home(request):
+    offers = 0
     try:
         user = UserProfile.objects.get(user=request.user)
         api_key = '?key=%s' % user.api_key
@@ -32,6 +33,8 @@ def home(request):
         url = '%s/api/Trades/%s' % (DOMAIN, api_key)
         data = get_request(url)
         for d in data:
+            if d['ui_status'] != '1':
+                offers += 1
             item_id = '%s_%s' % (d['i_classid'], d['i_instanceid'])
             current_trade.update({item_id: [{'price': d['ui_price']},
                                             {'min_price': d['min_price']},
@@ -39,7 +42,7 @@ def home(request):
                                             {'name': d['i_name']},
                                             {'id': d['ui_id']}]})
             len_current_trade += 1
-        print 'Items in trade: %d' % len_current_trade
+        # print 'Items in trade: %d' % len_current_trade
 
     except UserProfile.DoesNotExist:
         api_key = None
@@ -50,7 +53,8 @@ def home(request):
     data = {'api_key': api_key,
             'steam': steam,
             'inv_len': inv_len,
-            'len_current_trade': len_current_trade}
+            'len_current_trade': len_current_trade,
+            'offers': offers}
     return render(request, 'index.html', data)
 
 

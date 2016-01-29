@@ -12,6 +12,8 @@
                     Processing...
                 </div>
 
+                <pre id="result" style="display: none"></pre>
+
                 <form action="" method="post" id="insert_form" style="margin-top: 100px;">
                     {% csrf_token %}
                     <button type="submit" onclick="return false" class="btn btn-primary btn-lg btn-block" id="insert_start">
